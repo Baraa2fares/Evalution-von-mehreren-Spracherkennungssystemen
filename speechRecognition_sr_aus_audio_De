@@ -1,0 +1,30 @@
+import speech_recognition as sr
+#from pydub import AudioSegment falls das datei mp3 ist
+
+def recognize_audio(file_path):
+    # Erstellen Sie ein Recognizer-Objekt
+    r = sr.Recognizer()
+
+    # Überprüfen des Dateiformats und wird konvertiert bei Bedarf in WAV
+    if not file_path.endswith(".wav"):
+        audio = AudioSegment.from_file(file_path, format="mp3") # oder format="mp3", falls es eine MP3-Datei ist
+        file_path = "temp.wav"
+        audio.export(file_path, format="wav")
+
+    # Audio-Datei laden
+    with sr.AudioFile(file_path) as source:
+        audio_data = r.record(source)
+
+    try:
+        #  die recognize_google-Funktion, um das Audio in Text umzuwandeln
+        text = r.recognize_google(audio_data, language="de-DE")
+        return text
+    except sr.UnknownValueError:
+        return "Spracherkennung konnte den Audioinhalt nicht verstehen."
+    except sr.RequestError:
+        return "Es gab Probleme mit der API-Anfrage."
+
+# Test
+file_path = "./Audio/Zitieren_wav.wav"  # Pfad der Audiodatei
+result = recognize_audio(file_path)
+print(result)
